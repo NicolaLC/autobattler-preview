@@ -24,12 +24,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Decompress Unity WebGL files
+      - name: Decompress Unity WebGL files and update config
         run: |
           echo "Decompressing .gz files..."
           find . -name "*.gz" -type f | while read -r file; do
             echo "Decompressing: $file"
-            gunzip "$file"
+            # Decompress but keep the original filename without .gz
+            gunzip -c "$file" > "${file%.gz}"
+            rm "$file"
           done
           
           echo "Decompressing .br files..."
@@ -37,8 +39,15 @@ jobs:
             echo "Decompressing: $file"
             # Install brotli if .br files are found
             sudo apt-get update && sudo apt-get install -y brotli
-            brotli -d "$file"
+            # Decompress but keep the original filename without .br
+            brotli -d -c "$file" > "${file%.br}"
+            rm "$file"
           done
+          
+          echo "Updating index.html to reference decompressed files..."
+          sed -i 's/WebGL\.data\.gz/WebGL.data/g' index.html
+          sed -i 's/WebGL\.framework\.js\.gz/WebGL.framework.js/g' index.html
+          sed -i 's/WebGL\.wasm\.gz/WebGL.wasm/g' index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
