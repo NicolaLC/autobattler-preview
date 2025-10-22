@@ -1,0 +1,53 @@
+name: Deploy Unity WebGL to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decompress Unity WebGL files
+        run: |
+          echo "Decompressing .gz files..."
+          find . -name "*.gz" -type f | while read -r file; do
+            echo "Decompressing: $file"
+            gunzip "$file"
+          done
+          
+          echo "Decompressing .br files..."
+          find . -name "*.br" -type f | while read -r file; do
+            echo "Decompressing: $file"
+            # Install brotli if .br files are found
+            sudo apt-get update && sudo apt-get install -y brotli
+            brotli -d "$file"
+          done
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
