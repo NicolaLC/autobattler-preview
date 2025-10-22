@@ -196,17 +196,41 @@
         
         // Create install button
         const installButton = document.createElement('button');
-        installButton.textContent = 'Install App';
+        installButton.textContent = 'Install';
         installButton.style.position = 'fixed';
         installButton.style.top = '10px';
-        installButton.style.right = '10px';
+        installButton.style.left = '10px';
         installButton.style.zIndex = '9999';
-        installButton.style.padding = '10px';
         installButton.style.backgroundColor = '#007acc';
         installButton.style.color = 'white';
         installButton.style.border = 'none';
-        installButton.style.borderRadius = '5px';
+        installButton.style.borderRadius = '20px';
         installButton.style.cursor = 'pointer';
+        installButton.style.fontFamily = 'Arial, sans-serif';
+        installButton.style.fontWeight = 'bold';
+        installButton.style.fontSize = '12px';
+        installButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+        installButton.style.transition = 'all 0.2s ease';
+        
+        // Mobile-specific styling
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          installButton.style.padding = '6px 12px';
+          installButton.style.fontSize = '11px';
+        } else {
+          installButton.style.padding = '8px 16px';
+          installButton.style.fontSize = '12px';
+        }
+        
+        // Hover effect
+        installButton.addEventListener('mouseenter', () => {
+          installButton.style.backgroundColor = '#005a9e';
+          installButton.style.transform = 'scale(1.05)';
+        });
+        installButton.addEventListener('mouseleave', () => {
+          installButton.style.backgroundColor = '#007acc';
+          installButton.style.transform = 'scale(1)';
+        });
         
         installButton.addEventListener('click', () => {
           deferredPrompt.prompt();

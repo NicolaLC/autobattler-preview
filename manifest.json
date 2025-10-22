@@ -2,12 +2,12 @@
   "name": "AutoBattler!",
   "short_name": "AutoBattler",
   "description": "An exciting auto-battler game built with Unity WebGL",
-  "start_url": "/",
+  "start_url": "/autobattler-preview/",
   "display": "fullscreen",
   "orientation": "landscape-primary",
   "theme_color": "#000000",
   "background_color": "#000000",
-  "scope": "/",
+  "scope": "/autobattler-preview/",
   "icons": [
     {
       "src": "icons/icon-72x72.png",
