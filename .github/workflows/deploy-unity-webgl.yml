@@ -49,6 +49,34 @@ jobs:
           sed -i 's/WebGL\.framework\.js\.gz/WebGL.framework.js/g' index.html
           sed -i 's/WebGL\.wasm\.gz/WebGL.wasm/g' index.html
 
+      - name: Generate PWA icons if missing
+        run: |
+          # Install ImageMagick for icon generation
+          sudo apt-get update && sudo apt-get install -y imagemagick
+          
+          # Create a simple colored square as base icon if no icons exist
+          if [ ! -f "icons/icon-512x512.png" ]; then
+            echo "Creating placeholder PWA icons..."
+            mkdir -p icons
+            
+            # Create a simple colored square with game title
+            convert -size 512x512 xc:'#007acc' \
+              -gravity center \
+              -pointsize 48 \
+              -fill white \
+              -annotate +0+0 'AutoBattler' \
+              icons/icon-512x512.png
+            
+            # Generate other sizes
+            for size in 72 96 128 144 152 192 384; do
+              convert icons/icon-512x512.png -resize ${size}x${size} icons/icon-${size}x${size}.png
+            done
+            
+            echo "Generated placeholder icons"
+          else
+            echo "Icons already exist, skipping generation"
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 

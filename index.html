@@ -3,8 +3,27 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | AutoBattler!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AutoBattler">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="AutoBattler">
+    
+    <title>AutoBattler! - PWA Game</title>
+    
+    <!-- Favicon and Icons -->
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
@@ -87,26 +106,45 @@
       // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
       // expected to change.
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+      // PWA/Mobile responsive configuration
+      function setupCanvas() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                      window.matchMedia('(display-mode: fullscreen)').matches ||
+                      window.navigator.standalone === true;
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+        if (isMobile || isPWA) {
+          // Mobile/PWA style: fill the whole screen
+          document.querySelector("#unity-container").className = "unity-mobile";
+          canvas.className = "unity-mobile";
+          
+          // Optimize for mobile performance
+          config.devicePixelRatio = Math.min(window.devicePixelRatio, 2);
+          
+          // Make canvas responsive
+          canvas.style.width = "100vw";
+          canvas.style.height = "100vh";
+          canvas.style.position = "fixed";
+          canvas.style.top = "0";
+          canvas.style.left = "0";
+        } else {
+          // Desktop style: Render the game canvas in a window
+          canvas.style.width = "960px";
+          canvas.style.height = "600px";
+        }
       }
+
+      setupCanvas();
+
+      // Reconfigure on orientation change
+      window.addEventListener('orientationchange', () => {
+        setTimeout(setupCanvas, 100);
+      });
+
+      // Reconfigure on resize
+      window.addEventListener('resize', () => {
+        setupCanvas();
+      });
 
       document.querySelector("#unity-loading-bar").style.display = "block";
 
@@ -127,6 +165,69 @@
             };
 
       document.body.appendChild(script);
+
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+
+      // PWA Install prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Create install button
+        const installButton = document.createElement('button');
+        installButton.textContent = 'Install App';
+        installButton.style.position = 'fixed';
+        installButton.style.top = '10px';
+        installButton.style.right = '10px';
+        installButton.style.zIndex = '9999';
+        installButton.style.padding = '10px';
+        installButton.style.backgroundColor = '#007acc';
+        installButton.style.color = 'white';
+        installButton.style.border = 'none';
+        installButton.style.borderRadius = '5px';
+        installButton.style.cursor = 'pointer';
+        
+        installButton.addEventListener('click', () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User accepted the install prompt');
+              document.body.removeChild(installButton);
+            }
+            deferredPrompt = null;
+          });
+        });
+        
+        document.body.appendChild(installButton);
+      });
+
+      // Handle fullscreen for PWA
+      function enterFullscreen() {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) {
+          document.documentElement.msRequestFullscreen();
+        }
+      }
+
+      // Auto-enter fullscreen on PWA launch
+      if (window.matchMedia('(display-mode: fullscreen)').matches) {
+        setTimeout(enterFullscreen, 1000);
+      }
 
     </script>
   </body>
