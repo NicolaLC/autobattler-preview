@@ -17,12 +17,14 @@ html, body { height: 100%; width: 100%; }
 .unity-mobile body::-webkit-scrollbar { display: none; }
 .unity-mobile body { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Feedback Link Styles */
+/* Feedback and Changelog Link Styles */
 #feedback-container {
   position: fixed;
   top: 10px;
   right: 10px;
   z-index: 1000;
+  display: flex;
+  gap: 8px;
 }
 
 #feedback-link {
@@ -50,13 +52,39 @@ html, body { height: 100%; width: 100%; }
   transform: scale(1);
 }
 
+#changelog-link {
+  display: inline-block;
+  background: #007acc;
+  color: white;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+#changelog-link:hover {
+  background: #005a9e;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+#changelog-link:active {
+  transform: scale(1);
+}
+
 /* PWA and mobile adjustments */
 @media (display-mode: standalone), (display-mode: fullscreen) {
   #feedback-container {
     top: 10px;
     right: 80px;
+    gap: 6px;
   }
-  #feedback-link {
+  #feedback-link, #changelog-link {
     padding: 4px 8px;
     font-size: 10px;
   }
@@ -67,8 +95,9 @@ html, body { height: 100%; width: 100%; }
   #feedback-container {
     top: 10px;
     right: 80px;
+    gap: 6px;
   }
-  #feedback-link {
+  #feedback-link, #changelog-link {
     padding: 5px 10px;
     font-size: 10px;
   }
