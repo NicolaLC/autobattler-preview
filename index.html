@@ -13,6 +13,11 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="AutoBattler">
     
+    <!-- Force landscape orientation -->
+    <meta name="screen-orientation" content="landscape">
+    <meta name="x5-orientation" content="landscape">
+    <meta name="x5-fullscreen" content="true">
+    
     <title>AutoBattler! - PWA Game</title>
     
     <!-- Favicon and Icons -->
@@ -25,8 +30,74 @@
     <link rel="manifest" href="manifest.json">
     
     <link rel="stylesheet" href="TemplateData/style.css">
+    
+    <!-- Landscape enforcement styles -->
+    <style>
+      @media screen and (orientation: portrait) {
+        #landscape-warning {
+          display: flex !important;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 0.9);
+          color: white;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 99999;
+          font-family: Arial, sans-serif;
+          text-align: center;
+          padding: 20px;
+          box-sizing: border-box;
+        }
+        
+        #unity-container {
+          display: none !important;
+        }
+        
+        .rotate-icon {
+          font-size: 48px;
+          margin-bottom: 20px;
+          animation: rotate 2s linear infinite;
+        }
+        
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      }
+      
+      @media screen and (orientation: landscape) {
+        #landscape-warning {
+          display: none !important;
+        }
+      }
+      
+      /* Force landscape for specific devices */
+      @media screen and (max-width: 812px) and (max-height: 375px) {
+        html, body {
+          transform: rotate(90deg);
+          transform-origin: center center;
+          width: 100vh;
+          height: 100vw;
+          overflow-x: hidden;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- Landscape orientation warning -->
+    <div id="landscape-warning" style="display: none;">
+      <div class="rotate-icon">📱</div>
+      <h2>Please Rotate Your Device</h2>
+      <p>This game is designed for landscape mode.<br>Please rotate your device to continue playing.</p>
+    </div>
+    
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
@@ -45,7 +116,7 @@
     
     <!-- Feedback and Changelog Links -->
     <div id="feedback-container">
-      <a href="https://eu.jotform.com/agent/019a0c175c7f72bc9765e728789167983a42"
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfP11Rm8G1namrCcX9Ek64xp33DqaGL3LxGEg_zj4eujD9DOg/viewform?usp=dialog"
          target="_blank"
          id="feedback-link">
         📝 Send Feedback
@@ -114,7 +185,7 @@
       // If you would like all file writes inside Unity Application.persistentDataPath
       // directory to automatically persist so that the contents are remembered when
       // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
+      config.autoSyncPersistentDataPath = true;
       // This autosyncing is currently not the default behavior to avoid regressing
       // existing user projects that might rely on the earlier manual
       // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
@@ -266,6 +337,24 @@
       if (window.matchMedia('(display-mode: fullscreen)').matches) {
         setTimeout(enterFullscreen, 1000);
       }
+
+      // Force landscape orientation using Screen Orientation API
+      function forceLandscape() {
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('landscape-primary').catch((error) => {
+            console.log('Orientation lock failed:', error);
+          });
+        }
+      }
+
+      // Try to lock orientation when the game loads
+      window.addEventListener('load', () => {
+        setTimeout(forceLandscape, 1000);
+      });
+
+      // Also try when entering fullscreen or PWA mode
+      document.addEventListener('fullscreenchange', forceLandscape);
+      window.addEventListener('beforeinstallprompt', forceLandscape);
 
     </script>
   </body>
