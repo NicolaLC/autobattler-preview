@@ -1,6 +1,6 @@
 {
-  "name": "AutoBattler!",
-  "short_name": "AutoBattler",
+  "name": "Siege Clash",
+  "short_name": "Siege Clash",
   "description": "An exciting auto-battler game built with Unity WebGL",
   "start_url": "/autobattler-preview/",
   "display": "fullscreen",

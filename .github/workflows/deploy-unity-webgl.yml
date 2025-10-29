@@ -2,7 +2,7 @@ name: Deploy Unity WebGL to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
             gunzip -c "$file" > "${file%.gz}"
             rm "$file"
           done
-          
+
           echo "Decompressing .br files..."
           find . -name "*.br" -type f | while read -r file; do
             echo "Decompressing: $file"
@@ -43,7 +43,7 @@ jobs:
             brotli -d -c "$file" > "${file%.br}"
             rm "$file"
           done
-          
+
           echo "Updating index.html to reference decompressed files..."
           sed -i 's/WebGL\.data\.gz/WebGL.data/g' index.html
           sed -i 's/WebGL\.framework\.js\.gz/WebGL.framework.js/g' index.html
@@ -53,7 +53,7 @@ jobs:
         run: |
           # Install ImageMagick for icon generation
           sudo apt-get update && sudo apt-get install -y imagemagick
-          
+
           # Create a simple colored square as base icon if no icons exist
           if [ ! -f "icons/icon-512x512.png" ]; then
             echo "Creating placeholder PWA icons..."
@@ -64,7 +64,7 @@ jobs:
               -gravity center \
               -pointsize 48 \
               -fill white \
-              -annotate +0+0 'AutoBattler' \
+              -annotate +0+0 'Siege Clash' \
               icons/icon-512x512.png
             
             # Generate other sizes
@@ -83,7 +83,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: "."
 
       - name: Deploy to GitHub Pages
         id: deployment

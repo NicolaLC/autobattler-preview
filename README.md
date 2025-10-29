@@ -1,2 +1,2 @@
-# autobattler-preview
-Autobattler Game Preview
+# Siege Clash-preview
+Siege Clash Game Preview
